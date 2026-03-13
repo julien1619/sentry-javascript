@@ -142,11 +142,7 @@ function extractRequestAttributes(
 function addPrivateRequestAttributes(span: Span, params: Record<string, unknown>, isEmbeddings: boolean): void {
   if (isEmbeddings) {
     const contents = params.contents;
-    if (
-      contents != null &&
-      !(typeof contents === 'string' && contents.length === 0) &&
-      !(Array.isArray(contents) && contents.length === 0)
-    ) {
+    if (contents != null) {
       span.setAttribute(
         GEN_AI_EMBEDDINGS_INPUT_ATTRIBUTE,
         typeof contents === 'string' ? contents : JSON.stringify(contents),
