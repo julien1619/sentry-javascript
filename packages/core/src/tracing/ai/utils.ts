@@ -23,6 +23,10 @@ export function getFinalOperationName(methodPath: string): string {
   if (methodPath.includes('generateContent')) {
     return 'generate_content';
   }
+  // Google GenAI: models.embedContent -> embeddings
+  if (methodPath.includes('embedContent')) {
+    return 'embeddings';
+  }
   // Anthropic: models.get/retrieve -> models (metadata retrieval only)
   if (methodPath.includes('models')) {
     return 'models';

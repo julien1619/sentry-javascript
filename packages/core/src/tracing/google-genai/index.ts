@@ -29,16 +29,11 @@ import {
 import { truncateGenAiMessages } from '../ai/messageTruncation';
 import { buildMethodPath, extractSystemInstructions, getFinalOperationName, getSpanOperation } from '../ai/utils';
 import { CHAT_PATH, CHATS_CREATE_METHOD, GOOGLE_GENAI_SYSTEM_NAME } from './constants';
+import { addEmbedContentResponseAttributes, addEmbeddingsRequestAttributes } from './embeddings';
 import { instrumentStream } from './streaming';
-import type {
-  Candidate,
-  ContentPart,
-  GoogleGenAIIstrumentedMethod,
-  GoogleGenAIOptions,
-  GoogleGenAIResponse,
-} from './types';
+import type { Candidate, ContentPart, GoogleGenAIIstrumentedMethod, GoogleGenAIOptions, GoogleGenAIResponse } from './types';
 import type { ContentListUnion, ContentUnion, Message, PartListUnion } from './utils';
-import { contentUnionToMessages, isStreamingMethod, shouldInstrument } from './utils';
+import { contentUnionToMessages, isEmbeddingsMethod, isStreamingMethod, shouldInstrument } from './utils';
 
 /**
  * Extract model from parameters or chat context object
@@ -257,6 +252,7 @@ function instrumentMethod<T extends unknown[], R>(
   options: GoogleGenAIOptions,
 ): (...args: T) => R | Promise<R> {
   const isSyncCreate = methodPath === CHATS_CREATE_METHOD;
+  const isEmbeddings = isEmbeddingsMethod(methodPath);
 
   return new Proxy(originalMethod, {
     apply(target, _, args: T): R | Promise<R> {
@@ -305,7 +301,11 @@ function instrumentMethod<T extends unknown[], R>(
         },
         (span: Span) => {
           if (options.recordInputs && params) {
-            addPrivateRequestAttributes(span, params);
+            if (isEmbeddings) {
+              addEmbeddingsRequestAttributes(span, params);
+            } else {
+              addPrivateRequestAttributes(span, params);
+            }
           }
 
           return handleCallbackErrors(
@@ -319,7 +319,11 @@ function instrumentMethod<T extends unknown[], R>(
             result => {
               // Only add response attributes for content-producing methods, not for chats.create
               if (!isSyncCreate) {
-                addResponseAttributes(span, result, options.recordOutputs);
+                if (isEmbeddings) {
+                  addEmbedContentResponseAttributes(span, result);
+                } else {
+                  addResponseAttributes(span, result, options.recordOutputs);
+                }
               }
             },
           );

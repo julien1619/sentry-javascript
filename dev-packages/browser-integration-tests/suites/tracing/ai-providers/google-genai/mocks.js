@@ -39,6 +39,31 @@ export class MockGoogleGenAI {
           },
         };
       },
+      embedContent: async (...args) => {
+        const params = args[0];
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        if (params.model === 'error-model') {
+          const error = new Error('Model not found');
+          error.status = 404;
+          throw error;
+        }
+
+        return {
+          embeddings: [
+            {
+              values: [0.1, 0.2, 0.3, 0.4, 0.5],
+              statistics: {
+                tokenCount: 8,
+                truncated: false,
+              },
+            },
+          ],
+          metadata: {
+            billableCharacterCount: 30,
+          },
+        };
+      },
       generateContentStream: async () => {
         // Return a promise that resolves to an async generator
         return (async function* () {

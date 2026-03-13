@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { ContentListUnion } from '../../../src/tracing/google-genai/utils';
-import { contentUnionToMessages, isStreamingMethod, shouldInstrument } from '../../../src/tracing/google-genai/utils';
+import {
+  contentUnionToMessages,
+  isEmbeddingsMethod,
+  isStreamingMethod,
+  shouldInstrument,
+} from '../../../src/tracing/google-genai/utils';
 
 describe('isStreamingMethod', () => {
   it('detects streaming methods', () => {
@@ -14,9 +19,19 @@ describe('isStreamingMethod', () => {
   });
 });
 
+describe('isEmbeddingsMethod', () => {
+  it('detects embeddings methods', () => {
+    expect(isEmbeddingsMethod('models.embedContent')).toBe(true);
+    expect(isEmbeddingsMethod('embedContent')).toBe(true);
+    expect(isEmbeddingsMethod('models.generateContent')).toBe(false);
+    expect(isEmbeddingsMethod('sendMessage')).toBe(false);
+  });
+});
+
 describe('shouldInstrument', () => {
   it('detects which methods to instrument', () => {
     expect(shouldInstrument('models.generateContent')).toBe(true);
+    expect(shouldInstrument('models.embedContent')).toBe(true);
     expect(shouldInstrument('some.path.to.sendMessage')).toBe(true);
     expect(shouldInstrument('unknown')).toBe(false);
   });

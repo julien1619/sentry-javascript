@@ -22,6 +22,13 @@ export function isStreamingMethod(methodPath: string): boolean {
   return methodPath.includes('Stream');
 }
 
+/**
+ * Check if a method is an embeddings method
+ */
+export function isEmbeddingsMethod(methodPath: string): boolean {
+  return methodPath.includes('embedContent');
+}
+
 // Copied from https://googleapis.github.io/js-genai/release_docs/index.html
 export type ContentListUnion = Content | Content[] | PartListUnion;
 export type ContentUnion = Content | PartUnion[] | PartUnion;
