@@ -53,15 +53,8 @@ export class MockGoogleGenAI {
           embeddings: [
             {
               values: [0.1, 0.2, 0.3, 0.4, 0.5],
-              statistics: {
-                tokenCount: 8,
-                truncated: false,
-              },
             },
           ],
-          metadata: {
-            billableCharacterCount: 30,
-          },
         };
       },
       generateContentStream: async () => {

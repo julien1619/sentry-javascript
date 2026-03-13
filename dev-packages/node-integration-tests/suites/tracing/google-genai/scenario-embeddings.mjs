@@ -20,10 +20,6 @@ function startMockGoogleGenAIServer() {
           values: [0.1, 0.2, 0.3, 0.4, 0.5],
         },
       ],
-      usageMetadata: {
-        promptTokenCount: 8,
-        totalTokenCount: 8,
-      },
     });
   });
 

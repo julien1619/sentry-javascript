@@ -181,43 +181,5 @@ export interface GoogleGenAIChat {
 
 export type GoogleGenAIIstrumentedMethod = (typeof GOOGLE_GENAI_INSTRUMENTED_METHODS)[number];
 
-/**
- * Google GenAI Content Embedding
- * @see https://googleapis.github.io/js-genai/release_docs/classes/types.ContentEmbedding.html
- */
-type ContentEmbeddingType = {
-  /** The embedding values. */
-  values?: number[];
-  /** Statistics about the embedding. */
-  statistics?: {
-    /** The number of tokens in the content. */
-    tokenCount?: number;
-    /** Whether the content was truncated. */
-    truncated?: boolean;
-  };
-};
-
-/**
- * Google GenAI Embed Content Response
- * @see https://ai.google.dev/api/embeddings#EmbedContentResponse
- */
-export type GoogleGenAIEmbedContentResponse = {
-  [key: string]: unknown;
-  /** The generated embeddings. */
-  embeddings?: ContentEmbeddingType[];
-  /** Metadata about the embeddings. */
-  metadata?: {
-    /** Billable character count. */
-    billableCharacterCount?: number;
-  };
-  /** Usage metadata (same shape as GenerateContentResponse). */
-  usageMetadata?: {
-    /** Number of tokens in the request. */
-    promptTokenCount?: number;
-    /** Total token count. */
-    totalTokenCount?: number;
-  };
-};
-
 // Export the response type for use in instrumentation
 export type GoogleGenAIResponse = GenerateContentResponse;

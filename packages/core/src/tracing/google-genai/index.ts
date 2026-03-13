@@ -29,7 +29,7 @@ import {
 import { truncateGenAiMessages } from '../ai/messageTruncation';
 import { buildMethodPath, extractSystemInstructions, getFinalOperationName, getSpanOperation } from '../ai/utils';
 import { CHAT_PATH, CHATS_CREATE_METHOD, GOOGLE_GENAI_SYSTEM_NAME } from './constants';
-import { addEmbedContentResponseAttributes, addEmbeddingsRequestAttributes } from './embeddings';
+import { addEmbeddingsRequestAttributes } from './embeddings';
 import { instrumentStream } from './streaming';
 import type {
   Candidate,
@@ -324,12 +324,9 @@ function instrumentMethod<T extends unknown[], R>(
             () => {},
             result => {
               // Only add response attributes for content-producing methods, not for chats.create
-              if (!isSyncCreate) {
-                if (isEmbeddings) {
-                  addEmbedContentResponseAttributes(span, result);
-                } else {
-                  addResponseAttributes(span, result, options.recordOutputs);
-                }
+              // Note: embeddings responses don't include usage metadata or model version
+              if (!isSyncCreate && !isEmbeddings) {
+                addResponseAttributes(span, result, options.recordOutputs);
               }
             },
           );
