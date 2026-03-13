@@ -31,7 +31,13 @@ import { buildMethodPath, extractSystemInstructions, getFinalOperationName, getS
 import { CHAT_PATH, CHATS_CREATE_METHOD, GOOGLE_GENAI_SYSTEM_NAME } from './constants';
 import { addEmbedContentResponseAttributes, addEmbeddingsRequestAttributes } from './embeddings';
 import { instrumentStream } from './streaming';
-import type { Candidate, ContentPart, GoogleGenAIIstrumentedMethod, GoogleGenAIOptions, GoogleGenAIResponse } from './types';
+import type {
+  Candidate,
+  ContentPart,
+  GoogleGenAIIstrumentedMethod,
+  GoogleGenAIOptions,
+  GoogleGenAIResponse,
+} from './types';
 import type { ContentListUnion, ContentUnion, Message, PartListUnion } from './utils';
 import { contentUnionToMessages, isEmbeddingsMethod, isStreamingMethod, shouldInstrument } from './utils';
 

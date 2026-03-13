@@ -210,6 +210,13 @@ export type GoogleGenAIEmbedContentResponse = {
     /** Billable character count. */
     billableCharacterCount?: number;
   };
+  /** Usage metadata (same shape as GenerateContentResponse). */
+  usageMetadata?: {
+    /** Number of tokens in the request. */
+    promptTokenCount?: number;
+    /** Total token count. */
+    totalTokenCount?: number;
+  };
 };
 
 // Export the response type for use in instrumentation

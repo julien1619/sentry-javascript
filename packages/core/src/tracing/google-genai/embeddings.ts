@@ -38,8 +38,7 @@ export function addEmbeddingsRequestAttributes(span: Span, params: Record<string
 
 /**
  * Add response attributes from the Google GenAI embedContent response.
- * The EmbedContentResponse has no usageMetadata/candidates/modelVersion.
- * Token counts come from embeddings[].statistics.tokenCount.
+ * Token counts come from usageMetadata (Gemini API) or embeddings[].statistics.tokenCount (Vertex AI).
  * @see https://ai.google.dev/api/embeddings#EmbedContentResponse
  */
 export function addEmbedContentResponseAttributes(span: Span, response: unknown): void {
@@ -47,6 +46,19 @@ export function addEmbedContentResponseAttributes(span: Span, response: unknown)
 
   const embedResponse = response as GoogleGenAIEmbedContentResponse;
 
+  // Try usageMetadata first (same shape as GenerateContentResponse)
+  if (embedResponse.usageMetadata && typeof embedResponse.usageMetadata === 'object') {
+    const usage = embedResponse.usageMetadata;
+    if (typeof usage.promptTokenCount === 'number') {
+      span.setAttribute(GEN_AI_USAGE_INPUT_TOKENS_ATTRIBUTE, usage.promptTokenCount);
+    }
+    if (typeof usage.totalTokenCount === 'number') {
+      span.setAttribute(GEN_AI_USAGE_TOTAL_TOKENS_ATTRIBUTE, usage.totalTokenCount);
+    }
+    return;
+  }
+
+  // Fallback: sum token counts from individual embedding statistics (Vertex AI)
   if (Array.isArray(embedResponse.embeddings)) {
     let totalTokenCount = 0;
     for (const embedding of embedResponse.embeddings) {

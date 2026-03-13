@@ -6,7 +6,7 @@ function startMockGoogleGenAIServer() {
   const app = express();
   app.use(express.json());
 
-  app.post('/v1beta/models/:model\\:embedContent', (req, res) => {
+  app.post('/v1beta/models/:model\\:batchEmbedContents', (req, res) => {
     const model = req.params.model;
 
     if (model === 'error-model') {
@@ -18,14 +18,11 @@ function startMockGoogleGenAIServer() {
       embeddings: [
         {
           values: [0.1, 0.2, 0.3, 0.4, 0.5],
-          statistics: {
-            tokenCount: 8,
-            truncated: false,
-          },
         },
       ],
-      metadata: {
-        billableCharacterCount: 30,
+      usageMetadata: {
+        promptTokenCount: 8,
+        totalTokenCount: 8,
       },
     });
   });
