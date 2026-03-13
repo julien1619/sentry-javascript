@@ -48,7 +48,7 @@ export function isEmbeddingsMethod(methodPath: string): boolean {
  * Extract model from parameters or chat context object
  * For chat instances, the model is available on the chat object as 'model' (older versions) or 'modelVersion' (newer versions)
  */
-export function extractModel(params: Record<string, unknown>, context?: unknown): string {
+function extractModel(params: Record<string, unknown>, context?: unknown): string {
   if ('model' in params && typeof params.model === 'string') {
     return params.model;
   }
