@@ -692,7 +692,8 @@ describe('Google GenAI integration', () => {
           [SEMANTIC_ATTRIBUTE_SENTRY_ORIGIN]: 'auto.ai.google_genai',
           [GEN_AI_SYSTEM_ATTRIBUTE]: 'google_genai',
           [GEN_AI_REQUEST_MODEL_ATTRIBUTE]: 'text-embedding-004',
-          [GEN_AI_EMBEDDINGS_INPUT_ATTRIBUTE]: expect.any(String),
+          [GEN_AI_EMBEDDINGS_INPUT_ATTRIBUTE]:
+            '[{"role":"user","parts":[{"text":"First input text"}]},{"role":"user","parts":[{"text":"Second input text"}]}]',
         },
         description: 'embeddings text-embedding-004',
         op: 'gen_ai.embeddings',
