@@ -16,5 +16,4 @@ export const GOOGLE_GENAI_INSTRUMENTED_METHODS = [
 // Constants for internal use
 export const GOOGLE_GENAI_SYSTEM_NAME = 'google_genai';
 export const CHATS_CREATE_METHOD = 'chats.create';
-export const EMBED_CONTENT_METHOD = 'models.embedContent';
 export const CHAT_PATH = 'chat';
