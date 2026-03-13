@@ -6,6 +6,7 @@ import { startSpan, startSpanManual } from '../../tracing/trace';
 import type { Span, SpanAttributeValue } from '../../types-hoist/span';
 import { handleCallbackErrors } from '../../utils/handleCallbackErrors';
 import {
+  GEN_AI_EMBEDDINGS_INPUT_ATTRIBUTE,
   GEN_AI_INPUT_MESSAGES_ATTRIBUTE,
   GEN_AI_INPUT_MESSAGES_ORIGINAL_LENGTH_ATTRIBUTE,
   GEN_AI_OPERATION_NAME_ATTRIBUTE,
@@ -29,7 +30,6 @@ import {
 import { truncateGenAiMessages } from '../ai/messageTruncation';
 import { buildMethodPath, extractSystemInstructions, getFinalOperationName, getSpanOperation } from '../ai/utils';
 import { CHAT_PATH, CHATS_CREATE_METHOD, GOOGLE_GENAI_SYSTEM_NAME } from './constants';
-import { addEmbeddingsRequestAttributes } from './embeddings';
 import { instrumentStream } from './streaming';
 import type {
   Candidate,
@@ -139,7 +139,22 @@ function extractRequestAttributes(
  * This is only recorded if recordInputs is true.
  * Handles different parameter formats for different Google GenAI methods.
  */
-function addPrivateRequestAttributes(span: Span, params: Record<string, unknown>): void {
+function addPrivateRequestAttributes(span: Span, params: Record<string, unknown>, isEmbeddings: boolean): void {
+  if (isEmbeddings) {
+    const contents = params.contents;
+    if (
+      contents != null &&
+      !(typeof contents === 'string' && contents.length === 0) &&
+      !(Array.isArray(contents) && contents.length === 0)
+    ) {
+      span.setAttribute(
+        GEN_AI_EMBEDDINGS_INPUT_ATTRIBUTE,
+        typeof contents === 'string' ? contents : JSON.stringify(contents),
+      );
+    }
+    return;
+  }
+
   const messages: Message[] = [];
 
   // config.systemInstruction: ContentUnion
@@ -279,7 +294,7 @@ function instrumentMethod<T extends unknown[], R>(
           async (span: Span) => {
             try {
               if (options.recordInputs && params) {
-                addPrivateRequestAttributes(span, params);
+                addPrivateRequestAttributes(span, params, false);
               }
               const stream = await target.apply(context, args);
               return instrumentStream(stream, span, Boolean(options.recordOutputs)) as R;
@@ -307,11 +322,7 @@ function instrumentMethod<T extends unknown[], R>(
         },
         (span: Span) => {
           if (options.recordInputs && params) {
-            if (isEmbeddings) {
-              addEmbeddingsRequestAttributes(span, params);
-            } else {
-              addPrivateRequestAttributes(span, params);
-            }
+            addPrivateRequestAttributes(span, params, isEmbeddings);
           }
 
           return handleCallbackErrors(
